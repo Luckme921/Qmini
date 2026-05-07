@@ -86,6 +86,10 @@ include_directories(/usr/local/include/ddscxx /usr/local/include/iceoryx/v2.0.2)
 #include_directories(/usr/local/include)
 include_directories(/usr/include/python3.12/)
 
+# 添加这一行，指定onnxruntime库的路径
+# link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/onnx)
+link_directories(/usr/local/lib)
+link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/m8010motor)
 
 FIND_PACKAGE(yaml-cpp REQUIRED)
 

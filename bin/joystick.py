@@ -2,6 +2,10 @@ import pygame
 import struct
 import time
 import json
+import os
+
+os.environ["SDL_VIDEODRIVER"] = "dummy"
+os.environ["SDL_AUDIODRIVER"] = "dummy"
 
 class JoyStick:
     #按键定义
@@ -25,52 +29,100 @@ class JoyStick:
     def __init__(self):
         pygame.init()
         pygame.joystick.init()
+        self.joystick = None
         
+    def zero_states(self):
+        self.LaxiX = 0.0
+        self.LaxiY = 0.0
+        self.RaxiX = 0.0
+        self.RaxiY = 0.0
+        self.hatX = 0
+        self.hatY = 0
+        self.butA = 0
+        self.butB = 0
+        self.butX = 0
+        self.butY = 0
+        self.L1 = 0
+        self.R1 = 0
+        self.L2 = 0
+        self.R2 = 0
+        self.SELECT = 0
+        self.START = 0
+
     def initjoystick(self):
-        pygame.init()
-        pygame.joystick.init()
-        self.joystick = pygame.joystick.Joystick(0)
-        self.joystick.init()
+        # ----- [原版代码] -----
+        # pygame.init()
+        # pygame.joystick.init()
+        # self.joystick = pygame.joystick.Joystick(0)
+        # self.joystick.init()
+        # ---------------------
+
+        # ----- [修改代码: 增加防崩溃和错误捕获] -----
+        try:
+            pygame.init()
+            pygame.joystick.init()
+            if pygame.joystick.get_count() > 0:
+                self.joystick = pygame.joystick.Joystick(0)
+                self.joystick.init()
+            else:
+                self.joystick = None
+        except:
+            self.joystick = None
+        # ---------------------
 
     def getjoystickstates(self):
-        self.joystick = pygame.joystick.Joystick(0)
-        self.joystick.init()
-        
-        for event in pygame.event.get():  # User did something
-            if event.type == pygame.JOYAXISMOTION:
-                self.LaxiX = self.joystick.get_axis(0)
-                self.LaxiY = self.joystick.get_axis(1)
-                self.RaxiX = self.joystick.get_axis(2)
-                self.RaxiY = self.joystick.get_axis(3)
+        # ----- [原版代码] -----
+        # self.joystick = pygame.joystick.Joystick(0)
+        # self.joystick.init()
+        # 
+        # for event in pygame.event.get():  # User did something
+        #     if event.type == pygame.JOYAXISMOTION:
+        #         self.LaxiX = self.joystick.get_axis(0)
+        #         self.LaxiY = self.joystick.get_axis(1)
+        #         ... (按键映射事件循环) ...
+        # ---------------------
 
-            if event.type == pygame.JOYHATMOTION:
-                hat = self.joystick.get_hat(0)
-                self.hatX = hat[0]
-                self.hatY = hat[1]
+        # ----- [修改代码: 直接拉取状态，提高性能，加入异常捕获防闪退] -----
+        try:
+            pygame.event.pump() # 强制刷新底层硬件状态队列
+            
+            # 如果手柄未连接（开机忘了开），尝试重新识别
+            if self.joystick is None:
+                pygame.joystick.quit()
+                pygame.joystick.init()
+                if pygame.joystick.get_count() > 0:
+                    self.joystick = pygame.joystick.Joystick(0)
+                    self.joystick.init()
+                else:
+                    self.zero_states()
+                    return
 
-            if event.type == pygame.JOYBUTTONDOWN:
-                self.butA = self.joystick.get_button(0)
-                self.butB = self.joystick.get_button(1)
-                self.butX = self.joystick.get_button(3)
-                self.butY = self.joystick.get_button(4)
-                self.L1 = self.joystick.get_button(6)
-                self.R1 = self.joystick.get_button(7)
-                self.L2 = self.joystick.get_button(8)
-                self.R2 = self.joystick.get_button(9)
-                self.SELECT = self.joystick.get_button(10)
-                self.START = self.joystick.get_button(11)
-
-            if event.type == pygame.JOYBUTTONUP:
-                self.butA = self.joystick.get_button(0)
-                self.butB = self.joystick.get_button(1)
-                self.butX = self.joystick.get_button(3)
-                self.butY = self.joystick.get_button(4)
-                self.L1 = self.joystick.get_button(6)
-                self.R1 = self.joystick.get_button(7)
-                self.L2 = self.joystick.get_button(8)
-                self.R2 = self.joystick.get_button(9)
-                self.SELECT = self.joystick.get_button(10)
-                self.START = self.joystick.get_button(11)
+            # 极速强制拉取物理状态（放弃迟缓的 event.get 事件循环机制）
+            self.LaxiX = self.joystick.get_axis(0)
+            self.LaxiY = self.joystick.get_axis(1)
+            self.RaxiX = self.joystick.get_axis(2)
+            self.RaxiY = self.joystick.get_axis(3)
+            hat = self.joystick.get_hat(0)
+            self.hatX = hat[0]
+            self.hatY = hat[1]
+            self.butA = self.joystick.get_button(0)
+            self.butB = self.joystick.get_button(1)
+            self.butX = self.joystick.get_button(3)
+            self.butY = self.joystick.get_button(4)
+            self.L1 = self.joystick.get_button(6)
+            self.R1 = self.joystick.get_button(7)
+            self.L2 = self.joystick.get_button(8)
+            self.R2 = self.joystick.get_button(9)
+            self.SELECT = self.joystick.get_button(10)
+            self.START = self.joystick.get_button(11)
+            
+            pygame.event.clear() # 清理事件缓存，防止内存泄漏
+            
+        except Exception:
+            # 若出现设备断开、USB读取错误，立刻清零执行紧急制动
+            self.joystick = None
+            self.zero_states()
+        # ---------------------
         
     def display(self):
         print('================')

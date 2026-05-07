@@ -21,10 +21,10 @@ struct SerialGroup {
 class MotorController {
 public:
     std::vector<SerialGroup> serialGroups = {
-        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9CC6WH-if03-port0", {0,5}},
-        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9CC6WH-if01-port0", {1,6}},
-        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9CC6WH-if00-port0", {2, 3, 4}},
-        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9CC6WH-if02-port0", {7, 8, 9}}
+        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9ZSYPW-if03-port0", {2, 3, 4}},
+        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9ZSYPW-if01-port0", {0, 1}},
+        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9ZSYPW-if00-port0", {5, 6}},
+        {"/dev/serial/by-id/usb-FTDI_USB__-__Serial_Converter_FT9ZSYPW-if02-port0", {7, 8, 9}}
     };
     MotorController() {
         InitializeSerialPorts();
@@ -80,10 +80,10 @@ public:
 
 public:
     /// Startq（0位偏移）： 左腿roll 内扣，则需增大，右腿内扣则需减小
-    std::array<float, 10> Startq ={0.65,  0.45 , 1.28,   0.86,  0.56,
-                                   0.8, 0.,  0.301131,  0.513495,  0.2};
+    std::array<float, 10> Startq ={0.362,  0.1 , 2.445,   -0.9282,  1.8036,
+                                   0.7144, 0.0,  -1,  1.5405,  -0.74};
 
-    //    std::array<float, 10> Startq ={0.,  0. , 0,   0.0,  0.0, 0.0, -0.0,  0.0,  0.0,  0.0};
+        //  std::array<float, 10> Startq ={0.,  0. , 0,   0.0,  0.0, 0.0, -0.0,  0.0,  0.0,  0.0};
 
     std::array<MotorData, 10> allMotorData;
     float Speed_Ratio = 6.33;
@@ -142,12 +142,12 @@ public:
     }
 
     int CalculateChannelID(int motorID) {
-        if (motorID == 1) return motorID - 1;
-        else if (motorID >= 2 && motorID <= 4) return motorID - 2;
-        else if (motorID == 5) return motorID - 4;
-        else if (motorID == 6) return motorID - 5;
-        else if (motorID >= 7 && motorID <= 9) return motorID - 7;
-        return motorID;
+        if (motorID == 5) return motorID - 4;
+        else if (motorID == 6) return motorID - 4;
+        else if (motorID >= 7 && motorID <= 9) return motorID - 4;
+        else if (motorID == 0) return motorID + 6;
+        else if (motorID == 1) return motorID + 6;
+        else if (motorID >= 2 && motorID <= 4) return motorID + 6;
     }
 
     bool IsSpecialMotor(int motorID) const {

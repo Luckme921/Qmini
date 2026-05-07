@@ -38,7 +38,7 @@ isrun = True
 def parse_opt(known=False):
     parser = argparse.ArgumentParser()
     # parser.add_argument('--debugs', type=bool, default=False, help='if debug info output in terminal ')
-    parser.add_argument('--port', type=str, default='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0003-if00-port0', help='the models serial port receive data; example: '
+    parser.add_argument('--port', type=str, default='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0', help='the models serial port receive data; example: '
                                                                                                                                                     '    Windows: COM3'
                                                                                                                                                     '    Linux: /dev/ttyUSB0')
 
@@ -50,7 +50,7 @@ def parse_opt(known=False):
     return receive_params
 
 
-def read_imu_data(port="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0003-if00-port0", baudrate=921600, timeout=1):
+def read_imu_data(port='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0', baudrate=921600, timeout=1):
     try:
         serial_ = serial.Serial(port=port, baudrate=baudrate, bytesize=EIGHTBITS, parity=PARITY_NONE,
                                 stopbits=STOPBITS_ONE,
@@ -138,15 +138,15 @@ def read_imu_data(port="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Br
         elif head_type == TYPE_AHRS:
             data_s = serial_.read(int(AHRS_LEN, 16))
             AHRS_DATA = struct.unpack('10f ii',data_s[0:48])
-            #print("RollSpeed(rad/s): " + str(AHRS_DATA[0]))
-            #print("PitchSpeed(rad/s) : " + str(AHRS_DATA[1]))
-            #print("HeadingSpeed(rad) : " + str(AHRS_DATA[2]))
-            #print("Roll(rad) : " + str(AHRS_DATA[3]))
-            #print("Pitch(rad) : " + str(AHRS_DATA[4]))
-            #print("Heading(rad) : " + str(AHRS_DATA[5]))
-            #print("qw : " + str(AHRS_DATA[6]))
-            #print("qx : " + str(AHRS_DATA[7]))
-            #print("qy : " + str(AHRS_DATA[8]))
+            # print("RollSpeed(rad/s): " + str(AHRS_DATA[0]))
+            # print("PitchSpeed(rad/s) : " + str(AHRS_DATA[1]))
+            # print("HeadingSpeed(rad) : " + str(AHRS_DATA[2]))
+            # print("Roll(rad) : " + str(AHRS_DATA[3]))
+            # print("Pitch(rad) : " + str(AHRS_DATA[4]))
+            # print("Heading(rad) : " + str(AHRS_DATA[5]))
+            # print("qw : " + str(AHRS_DATA[6]))
+            # print("qx : " + str(AHRS_DATA[7]))
+            # print("qy : " + str(AHRS_DATA[8]))
             # print("qz : " + str(AHRS_DATA[9]))
 
 
@@ -165,12 +165,12 @@ def read_imu_data(port="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Br
             # result["qz"]=AHRS_DATA[9]
 
             #改位置
-            result["RollSpeed"]= AHRS_DATA[1]
-            result["PitchSpeed"]=AHRS_DATA[0] * -1
+            result["RollSpeed"]= AHRS_DATA[0]
+            result["PitchSpeed"]=AHRS_DATA[1]
             result["HeadingSpeed"]=AHRS_DATA[2]
 
-            r = AHRS_DATA[4]
-            p = AHRS_DATA[3] * -1
+            r = AHRS_DATA[3]
+            p = AHRS_DATA[4]
             h = AHRS_DATA[5]
 
             result["Roll"]=r
@@ -194,8 +194,8 @@ def read_imu_data(port="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Br
             # result["qz"]=cr * cp * sh - sr * sp * ch
 
             result["qw"]=AHRS_DATA[6]
-            result["qx"]=AHRS_DATA[7]
-            result["qy"]=AHRS_DATA[8]
+            result["qx"]=AHRS_DATA[8]
+            result["qy"]=-AHRS_DATA[7]
             result["qz"]=AHRS_DATA[9]
             temp2=True
 
@@ -224,4 +224,4 @@ def read_imu_data(port="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Br
 
 
     return result
-read_imu_data(port="/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0003-if00-port0", baudrate=921600, timeout=1)
+read_imu_data(port='/dev/serial/by-id/usb-Silicon_Labs_CP2102_USB_to_UART_Bridge_Controller_0001-if00-port0', baudrate=921600, timeout=1)
